@@ -1,0 +1,76 @@
+﻿@{
+    ViewData["Title"] = "Tablo Verileri";
+}
+
+<div class="container mt-5">
+    <h3 class="text-center">Tablo Verileri</h3>
+
+    @if (ViewBag.TableData != null)
+    {
+        <form asp-action="Chart" method="post" id="dataForm">
+            <div class="text-right mb-2">
+                <button type="button" class="btn btn-primary" id="selectAll">Tümünü Seç</button>
+            </div>
+
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        @foreach (var key in ((IDictionary<string, object>)ViewBag.TableData[0]).Keys)
+                        {
+                            <th>@key</th>
+                        }
+                        <th class="text-center">Seç</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in ViewBag.TableData)
+                    {
+                        <tr>
+                            @foreach (var value in ((IDictionary<string, object>)row).Values)
+                            {
+                                <td>@value</td>
+                            }
+                            <td class="text-center">
+                                <input type="checkbox" class="selectRow" name="SelectedRows[]" value="@Newtonsoft.Json.JsonConvert.SerializeObject(row)" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="form-group mt-3">
+                <label for="chartType">Grafik Türü Seç:</label>
+                <select class="form-control" id="chartType" name="ChartType">
+                    <option value="bar">Bar</option>
+                    <option value="line">Line</option>
+                </select>
+            </div>
+
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-success" id="submitButton">Grafik Oluştur</button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <p class="text-danger text-center">Tablo verisi bulunamadı.</p>
+    }
+</div>
+
+<script>
+    document.getElementById('selectAll').addEventListener('click', function () {
+        var checkboxes = document.querySelectorAll('.selectRow');
+        var isChecked = this.getAttribute('data-checked') === 'true';
+        checkboxes.forEach(cb => cb.checked = !isChecked);
+        this.setAttribute('data-checked', !isChecked);
+        this.textContent = isChecked ? 'Tümünü Seç' : 'Seçimleri Kaldır';
+    });
+
+    document.getElementById('submitButton').addEventListener('click', function (e) {
+        var checkboxes = document.querySelectorAll('.selectRow:checked');
+        if (checkboxes.length === 0) {
+            e.preventDefault();
+            alert('Lütfen en az bir veri seçiniz.');
+        }
+    });
+</script>
